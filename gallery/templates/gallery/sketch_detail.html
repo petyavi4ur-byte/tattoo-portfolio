@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ sketch.title }} - Калькулятор</title>
+    <style>
+        .container {
+        display: flex
+        gap: 40px;
+        padding: 20px;
+        font-family: sans-serif; }
+        .image-side img {
+        max-width: 400px;
+        border-radius: 10px; }
+        .calc-side {
+        background: #f4f4f4;
+        padding: 20px;
+        border-radius: 10px;
+        width: 300px;}
+        .price-tag {
+        font-size: 24px;
+        color:#2c3e50;
+        font-weight: bold
+        margin-top: 20px; }
+        input { width: 100%;
+        margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <a href="{% url 'catalog' %}">Назад в каталог</a>
+    <div class="cantainer">
+        <div class="image-side">
+            <img
+                src="{{ sketch.image.url }}"
+                alt="{{ sketch.title }}">
+            <h1>{{ sketch.title }}</h1>
+            <p><strong>Мастер:</strong>
+            {{ sketch.artist.user.username }}</p>
+            <p><strong>Стиль:</strong>
+            {{ sketch.style.name }}</p>
+        </div>
+
+        <div class="calc-side">
+            <h3>Рассчитать стоимость</h3>
+            <label>Ширина (см):</label>
+            <input type="number" id="width" value="10" min="1">
+            <label>Высота (см):</label>
+            <input type="number" id="height" value="10" min="1">
+            <div class="price-tag">
+                Итого: <span id="total-price">0</span> BYN
+            </div>
+
+            <p style="
+            font-size:0.8em
+            color: #7f8c8d;
+            margin-top: 15px;">* Цена является ориентировочной и зависит от сложности места нанесения.</p>
+        </div>
+    </div>
+    <script>
+        const baseRate = Number("{{ sketch.artist.base_rate|floatformat:2 }}".replace(',','.'))
+        const styleFactor = Number("{{ sketch.style.complexity_factor|floatformat:2 }}".replace(',','.'))
+        const detailModifier = Number("{{ sketch.detail_modifier|floatformat:2 }}".replace(',','.'));
+        const widthInput = document.getElementById('width');
+        const heightInput = document.getElementById('height');
+        const priceDisplay = document.getElementById('total-price');
+        function calculate() {
+            const w = parseFloat(widthInput.value) || 0;
+            const h = parseFloat(heightInput.value) || 0;
+            const total = w * h * baseRate *styleFactor * detailModifier;
+            priceDisplay.innerText = total.toFixed(2);}
+        widthInput.addEventListener('input',calculate);
+        heightInput.addEventListener('input',calculate);
+        calculate();
+    </script>
+</body>
+</html>

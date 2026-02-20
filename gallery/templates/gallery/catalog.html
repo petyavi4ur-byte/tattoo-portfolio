@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Каталог эскизов</title>
+    <style>
+        .catalog-grid { display:flex flex-wrap: wrap; gap: 20px; }
+        .sketch-card { border: 1px solid #ccc; padding: 10px;
+        width: 200px; text-align: center; }
+        .sketch-card img { max-width: 100%; height: auto;
+        border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Каталог авторских эскизов</h1>
+    <div class="catalog-grid">
+        {% for sketch in sketches %}
+            <div class="sketch-card">
+                {% if sketch.image %}
+                    <img
+            src="{{ sketch.image.url }}"
+            alt="{{ sketch.title }}">
+                {% endif %}
+
+<h3>{{ sketch.title }}</h3>
+                <p>Мастер:
+{{ sketch.artist.user.username }}</p>
+                <p>Стиль:
+{{ sketch.style.name }}</p>
+                <a href="{% url 'sketch_detail' pk=sketch.pk %}">Рассчитать стоимость</a>
+            </div>
+        {% empty %}
+            <p>В каталоге пока нет эскизов.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

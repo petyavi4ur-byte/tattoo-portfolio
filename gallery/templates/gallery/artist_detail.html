@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Профиль мастера</title>
+</head>
+<body>
+    {% if artist %}
+        <h1>Мастер: {{ artist.user.username }}</h1>
+        <hr>
+        <h3>Мои калибровочные работы:</h3>
+        <ul>
+            {% for work in artist.calibrations.all %}
+                <li>
+                    Стиль: {{ work.style.name }} |
+                    Размер: {{ work.width }}x{{ work.height }} см|
+                    Цена: {{ work.price }}
+                </li>
+            {% empty %}
+                <li>Работ пока нет. Добавьте их в админке!</li>
+            {% endfor %}
+        </ul>
+
+        <hr>
+        <h2>Ваша рассчитанная ставка: {{ artist.base_rate|floatformat:2 }} BYN/см кв.</h2>
+    {% else %}
+        <h1>Мастеров в базе пока нет. Создайте профиль в админке!</h1>
+    {% endif %}
+</body>
+</html>
