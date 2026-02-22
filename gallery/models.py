@@ -55,3 +55,39 @@ class Sketch(models.Model):
         return round(total,2)
     def __str__(self):
         return f"{self.title} ({self.artist.user.username})"
+
+
+class BodyPart(models.Model):
+    name = models.CharField(max_length=100,verbose_name="Место нанесения")
+    difficulty_factor = models.FloatField(default=1.0,verbose_name="Коэффициент сложности места")
+
+    def __str__(self):
+        return f"{self.name} x({self.difficulty_factor})"
+
+class TimeSlot(models.Model):
+    artist = models.ForeignKey(ArtistProfile, on_delete=models.CASCADE,related_name='timeslots')
+    date = models.DateField(verbose_name="Дата")
+    start_time = models.TimeField(verbose_name="Время начала")
+    is_booked = models.BooleanField(default=False,verbose_name="Забронировано")
+
+
+class Meta:
+    unique_together = ('artist','date', 'start_time')
+    ordering = ['date','start_time']
+
+    def __str__(self):
+        status = "Занято" if self.is_booked else "Свободно"
+        return f"{self.date} | {self.start_time} - {status}"
+
+
+class Booking(models.Model):
+    sketch = models.ForeignKey(Sketch,on_delete=models.CASCADE)
+    slot = models.OneToOneField(TimeSlot,on_delete=models.CASCADE)
+    customer = models.CharField(max_length=100,verbose_name="Имя клиента")
+    customer_phone = models.CharField(max_length=20,verbose_name="Телефон")
+    final_price = models.DecimalField(max_digits=10,decimal_places=2)
+    calculated_size = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Заявка на {self.sketch.title} от {self.customer}"

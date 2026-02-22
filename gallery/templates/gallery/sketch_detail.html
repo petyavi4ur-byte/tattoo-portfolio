@@ -41,14 +41,54 @@
 
         <div class="calc-side">
             <h3>Рассчитать стоимость</h3>
+            <form method="POST" action="{% url 'create_booking' pk=sketch.pk %}">
+                {% csrf_token %}
             <label>Ширина (см):</label>
             <input type="number" id="width" value="10" min="1">
             <label>Высота (см):</label>
             <input type="number" id="height" value="10" min="1">
+            <label>Место нанесения:</label>
+            <select id="body-part">
+                {% for part in body_parts %}
+                    <option
+                    value="{{ part.difficulty_factor|floatformat:2 }}">
+                        {{ part.name }}
+                    </option>
+                {% endfor %}
+            </select>
             <div class="price-tag">
                 Итого: <span id="total-price">0</span> BYN
+                <input type="hidden"
+                name="final_price_hidden"
+                id="final-price-hidden"  >
             </div>
-
+             <label>Выберите дату и время:</label>
+        <select id="time-slot" name="slot_id" required>
+            <option value="">-- Выберите окошко --</option>
+                {% for slot in available_slots %}
+                    <option value="{{ slot.id }}">
+                        {{ slot.date| date:"d.m" }} в {{ slot.start_time|time:"H:i" }}
+                    </option>
+                {% endfor %}
+        </select>
+        <div style="margin-top: 20px;">
+            <label>Ваше имя:</label>
+            <input type="text"
+            name="client_name" required placeholder="Лесхоз">
+            <label>Телефон:</label>
+            <input type="text"
+            name="client_phone" required placeholder="+375 29 ..."
+        </div>
+        <button type="submit"
+        id="book-btn"
+        style="margin-top: 20px;
+        width: 100%;
+        height: 40px;
+        background: #000;
+        color: #fff;
+        cursor: pointer;">Записаться на сеанс
+        </button>
+            </form>
             <p style="
             font-size:0.8em
             color: #7f8c8d;
@@ -61,14 +101,18 @@
         const detailModifier = Number("{{ sketch.detail_modifier|floatformat:2 }}".replace(',','.'));
         const widthInput = document.getElementById('width');
         const heightInput = document.getElementById('height');
+        const bodyPartInput = document.getElementById('body-part');
         const priceDisplay = document.getElementById('total-price');
         function calculate() {
             const w = parseFloat(widthInput.value) || 0;
             const h = parseFloat(heightInput.value) || 0;
-            const total = w * h * baseRate *styleFactor * detailModifier;
-            priceDisplay.innerText = total.toFixed(2);}
+            const partFactor = parseFloat(bodyPartInput.value.replace(',',',')) || 1;
+            const total = w * h * baseRate *styleFactor * detailModifier * partFactor;
+            priceDisplay.innerText = total.toFixed(2);
+            document.getElementById('final-price-hidden').value = total.toFixed(2)}
         widthInput.addEventListener('input',calculate);
         heightInput.addEventListener('input',calculate);
+        bodyPartInput.addEventListener('change',calculate);
         calculate();
     </script>
 </body>
